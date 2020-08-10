@@ -6,8 +6,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "ngplus-api-gwy-scale-set" {
   sku                             = "Standard_F2" //Standard_DS1_v2
   instances                       = 1
   admin_username                  = var.admin_user
-  //admin_password                  = ""
-  //disable_password_authentication = false
+  admin_password                  = var.admin_password
+  disable_password_authentication = false
   /*
   admin_ssh_key {
     username   = var.admin_user
@@ -72,6 +72,17 @@ resource "azurerm_network_security_group" "vm-scale-set-nsg" {
         source_port_range          = "*"
         destination_port_ranges     = ["8080","80","443"]
     }
+    security_rule {
+      name                       = "NPlus-Outbound-Access"
+      priority                   = 102
+      direction                  = "Outbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_address_prefix      = var.public-subnet-cidr
+      destination_address_prefix = var.private-subnet-cidr
+      source_port_range          = "*"
+      destination_port_ranges     = ["3000","3600"]
+    }
 
     tags = {
         Environment = "Development"
@@ -79,3 +90,27 @@ resource "azurerm_network_security_group" "vm-scale-set-nsg" {
     }
 }
 
+/*
+resource "azurerm_network_security_group" "vmss-outbound-nsg" {
+    name                = "${random_pet.pet-prefix.id}-vmss-outbound-nsg"
+    location            = var.location
+    resource_group_name = azurerm_resource_group.nginx-plus-gateway-resourcegroup.name
+    
+    security_rule {
+        name                       = "NPlus-Outbound-Access"
+        priority                   = 102
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_address_prefix      = var.public-subnet-cidr
+        destination_address_prefix = var.private-subnet-cidr
+        source_port_range          = "*"
+        destination_port_ranges     = ["3000","3600"]
+    }
+
+    tags = {
+        Environment = "Development"
+        Created_By = var.prefix
+    }
+}
+*/

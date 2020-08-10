@@ -1,9 +1,9 @@
 
 resource "azurerm_public_ip" "loadbalancer-public-ip" {
-  depends_on          = [azurerm_resource_group.network-lb-resourcegroup]
+  depends_on          = [azurerm_resource_group.external-loadbalancer-resourcegroup]
   name                = "${random_pet.pet-prefix.id}-pub-lb-ip"
   location            = var.location
-  resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   allocation_method   = "Static"
   domain_name_label   = random_pet.pet-prefix.id
   tags = {
@@ -15,7 +15,7 @@ resource "azurerm_public_ip" "loadbalancer-public-ip" {
 resource "azurerm_lb" "network-load-balancer" {
   name                = "${random_pet.pet-prefix.id}-load-balancer"
   location            = var.location
-  resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
 
   frontend_ip_configuration {
     name                 = "PublicIPAddress"
@@ -24,20 +24,20 @@ resource "azurerm_lb" "network-load-balancer" {
 }
 
 resource "azurerm_lb_backend_address_pool" "lb-backend-address-pool" {
-  resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   loadbalancer_id     = azurerm_lb.network-load-balancer.id
   name                = "${random_pet.pet-prefix.id}-lb-backend-pool"
 }
 
 resource "azurerm_lb_probe" "load-balancer-probe" {
-  resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   loadbalancer_id     = azurerm_lb.network-load-balancer.id
   name                = "${random_pet.pet-prefix.id}-lb-port80-probe"
   port                = "80"
 }
 
 resource "azurerm_lb_rule" "loadbalancer-rules" {
-  resource_group_name            = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name            = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   loadbalancer_id                = azurerm_lb.network-load-balancer.id
   name                           = "${random_pet.pet-prefix.id}-http-lb-rule"
   protocol                       = "Tcp"
@@ -49,7 +49,7 @@ resource "azurerm_lb_rule" "loadbalancer-rules" {
 }
 
 resource "azurerm_lb_rule" "lb-8080-rule" {
-  resource_group_name            = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name            = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   loadbalancer_id                = azurerm_lb.network-load-balancer.id
   name                           = "${random_pet.pet-prefix.id}-lb-8080-rule"
   protocol                       = "Tcp"
@@ -60,7 +60,7 @@ resource "azurerm_lb_rule" "lb-8080-rule" {
   //probe_id                       = azurerm_lb_probe.load-balancer-probe.id
 }
 resource "azurerm_lb_rule" "lb-443-rule" {
-  resource_group_name            = azurerm_resource_group.network-lb-resourcegroup.name
+  resource_group_name            = azurerm_resource_group.external-loadbalancer-resourcegroup.name
   loadbalancer_id                = azurerm_lb.network-load-balancer.id
   name                           = "${random_pet.pet-prefix.id}-lb-443-rule"
   protocol                       = "Tcp"
@@ -73,10 +73,10 @@ resource "azurerm_lb_rule" "lb-443-rule" {
 
 /*
 resource "azurerm_network_security_group" "lb-nsg" {
-    depends_on = [azurerm_resource_group.network-lb-resourcegroup]
+    depends_on = [azurerm_resource_group.external-loadbalancer-resourcegroup]
     name                = "${random_pet.pet-prefix.id}-gwy-nsg"
     location            = var.location
-    resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+    resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
     
     security_rule {
         name                       = "lb-ports"
@@ -99,7 +99,7 @@ resource "azurerm_network_security_group" "lb-nsg" {
 resource "azurerm_network_interface" "loadbalancer-network-interface" {
     name                        = "${random_pet.pet-prefix.id}-nw-nic"
     location                    = "eastus"
-    resource_group_name = azurerm_resource_group.network-lb-resourcegroup.name
+    resource_group_name = azurerm_resource_group.external-loadbalancer-resourcegroup.name
     ip_configuration {
         name                          = "${random_pet.pet-prefix.id}-nic-config"
         //subnet_id                     = azurerm_subnet.myterraformsubnet.id

@@ -1,6 +1,6 @@
 # Resource group for network resources
-resource "azurerm_resource_group" "network-resourcegroup" {
-  name     = "${random_pet.pet-prefix.id}-network-rg"
+resource "azurerm_resource_group" "vnet-resourcegroup" {
+  name     = "${random_pet.pet-prefix.id}-vnet-rg"
   location = var.location
   tags = {
     Environment = "Development"
@@ -8,8 +8,17 @@ resource "azurerm_resource_group" "network-resourcegroup" {
   }
 }
 
-resource "azurerm_resource_group" "network-lb-resourcegroup" {
-  name     = "${random_pet.pet-prefix.id}-net-lb-rg"
+resource "azurerm_resource_group" "external-loadbalancer-resourcegroup" {
+  name     = "${random_pet.pet-prefix.id}-external-lb-rg"
+  location = var.location
+  tags = {
+    Environment = "Development"
+    Created_By  = var.prefix
+  }
+}
+
+resource "azurerm_resource_group" "internal-loadbalancer-resourcegroup" {
+  name     = "${random_pet.pet-prefix.id}-internal-lb-rg"
   location = var.location
   tags = {
     Environment = "Development"
@@ -35,3 +44,4 @@ resource "azurerm_resource_group" "microservice-resourcegroup" {
     Created_By  = var.prefix
   }
 }
+

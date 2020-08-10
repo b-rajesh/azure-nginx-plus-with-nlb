@@ -1,9 +1,9 @@
 resource "azurerm_virtual_network" "virtual-network" {
-  depends_on          = [azurerm_resource_group.network-resourcegroup]
+  depends_on          = [azurerm_resource_group.vnet-resourcegroup]
   name                = "${random_pet.pet-prefix.id}-virtual-network"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
-  resource_group_name = azurerm_resource_group.network-resourcegroup.name
+  resource_group_name = azurerm_resource_group.vnet-resourcegroup.name
   tags = {
     Environment = "Development"
     Created_By  = var.prefix
@@ -11,27 +11,27 @@ resource "azurerm_virtual_network" "virtual-network" {
 }
 
 resource "azurerm_subnet" "gateway-subnet" {
-  depends_on           = [azurerm_resource_group.network-resourcegroup]
+  depends_on           = [azurerm_resource_group.vnet-resourcegroup]
   name                 = "${random_pet.pet-prefix.id}-gwy-subnet"
-  resource_group_name  = azurerm_resource_group.network-resourcegroup.name
+  resource_group_name  = azurerm_resource_group.vnet-resourcegroup.name
   virtual_network_name = azurerm_virtual_network.virtual-network.name
   address_prefixes     = [var.public-subnet-cidr]
 }
 
 resource "azurerm_subnet" "microservice-subnet" {
-  depends_on           = [azurerm_resource_group.network-resourcegroup]
+  depends_on           = [azurerm_resource_group.vnet-resourcegroup]
   name                 = "${random_pet.pet-prefix.id}-ms-subnet"
-  resource_group_name  = azurerm_resource_group.network-resourcegroup.name
+  resource_group_name  = azurerm_resource_group.vnet-resourcegroup.name
   virtual_network_name = azurerm_virtual_network.virtual-network.name
   address_prefixes     = [var.private-subnet-cidr]
 }
 /*
 
 resource "azurerm_network_security_group" "gateway-nsg" {
-    depends_on = [azurerm_resource_group.network-resourcegroup]
+    depends_on = [azurerm_resource_group.vnet-resourcegroup]
     name                = "${random_pet.pet-prefix.id}-gwy-nsg"
     location            = var.location
-    resource_group_name = azurerm_resource_group.network-resourcegroup.name
+    resource_group_name = azurerm_resource_group.vnet-resourcegroup.name
     
     security_rule {
         name                       = "WEB"
@@ -52,10 +52,10 @@ resource "azurerm_network_security_group" "gateway-nsg" {
 }
 
 resource "azurerm_network_interface" "gwy-subnet-interface-card" {
-    depends_on = [azurerm_resource_group.network-resourcegroup]
+    depends_on = [azurerm_resource_group.vnet-resourcegroup]
     name                = "${random_pet.pet-prefix.id}-virtual-nic"
     location            = var.location
-    resource_group_name = azurerm_resource_group.network-resourcegroup.name
+    resource_group_name = azurerm_resource_group.vnet-resourcegroup.name
 
     ip_configuration {
         name                          = "${random_pet.pet-prefix.id}-nic-config"
